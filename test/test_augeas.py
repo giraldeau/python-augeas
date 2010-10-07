@@ -79,6 +79,48 @@ class TestAugeas(unittest.TestCase):
         self.assertEquals(0, res["label_end"])
         self.assertEquals(104, res["value_start"])
         self.assertEquals(113, res["value_end"])
+
+    def test06SetMultiple(self):
+        "Set multiple nodes at once"
+        # Tests based on unit tests of aug_setm from augeas
+        a = augeas.Augeas(root=MYROOT)
+        #Change base nodes when SUB is None
+        r = a.setm("/augeas/version/save/*", None, "changed")
+        self.assertEquals(4, r)
+        
+        r = a.match("/augeas/version/save/*[. = 'changed']")
+        self.assertEquals(4, len(r))
+        
+        # Only change existing nodes 
+        r = a.setm("/augeas/version/save", "mode", "again")
+        self.assertEquals(4, r)
+        
+        r = a.match("/augeas/version/save/*")
+        self.assertEquals(4, len(r))
+        
+        r = a.match("/augeas/version/save/*[. = 'again']")
+        self.assertEquals(4, len(r))
+        
+        # Create a new node 
+        r = a.setm("/augeas/version/save", "mode[last() + 1]", "newmode")
+        self.assertEquals(1, r)
+        
+        r = a.match("/augeas/version/save/*")
+        self.assertEquals(5, len(r));
+        
+        r = a.match("/augeas/version/save/*[. = 'again']")
+        self.assertEquals(4, len(r))
+        
+        r = a.match("/augeas/version/save/*[last()][. = 'newmode']")
+        self.assertEquals(1, len(r))
+        
+        # Noexistent base 
+        r = a.setm("/augeas/version/save[last()+1]", "mode", "newmode")
+        self.assertEquals(0, r)
+        
+        # Invalid path expressions 
+        self.assertRaises(ValueError, a.setm, "/augeas/version/save[]", "mode", "invalid")
+        self.assertRaises(ValueError, a.setm, "/augeas/version/save/*", "mode[]", "invalid")
         
 def getsuite():
     suite = unittest.TestSuite()
