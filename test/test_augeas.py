@@ -68,8 +68,18 @@ class TestAugeas(unittest.TestCase):
         self.failUnless(default == 1)
         a.set("/files/etc/grub.conf/default", str(0))
         a.save()
+    
+    def test05NodeInfo(self):
+        "get info about a node"
+        a = augeas.Augeas(root=MYROOT)
+        res = a.info("/files/etc/hosts/1/ipaddr")
+        filename_ex = os.path.join(MYROOT,"etc/hosts")
+        self.assertEquals(filename_ex, res["filename"])
+        self.assertEquals(0, res["label_start"])
+        self.assertEquals(0, res["label_end"])
+        self.assertEquals(104, res["value_start"])
+        self.assertEquals(113, res["value_end"])
         
-
 def getsuite():
     suite = unittest.TestSuite()
     suite = unittest.makeSuite(TestAugeas, 'test')

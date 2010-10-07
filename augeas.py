@@ -267,6 +267,44 @@ class Augeas(object):
 
         return matches
 
+    def info(self, path):
+        """Lookup the information of the node associated with 'path'.
+        Returns a dictionary with the filename, label_start, label_end,
+        value_start and value_end. ValueError is raised if the path doesn't
+        belong to a file or if the path doesn't exists."""
+
+        # Sanity checks
+        if not isinstance(path, basestring):
+            raise TypeError("path MUST be a string!")
+        if not self.__handle:
+            raise RuntimeError("The Augeas object has already been closed!")
+
+        # Create vars
+        filename    = ctypes.c_char_p()
+        label_start = ctypes.c_uint()
+        label_end   = ctypes.c_uint()
+        value_start = ctypes.c_uint()
+        value_end   = ctypes.c_uint()
+        
+        ret = Augeas._libaugeas.aug_info(self.__handle, path,
+                                        ctypes.byref(filename),
+                                        ctypes.byref(label_start),
+                                        ctypes.byref(label_end),
+                                        ctypes.byref(value_start),
+                                        ctypes.byref(value_end))
+        
+        if ret < 0:
+            raise ValueError("path specified doesn't exists or doesn't have " + 
+                             "file info associated")
+
+        res = { "filename":    filename.value,
+                "label_start": label_start.value,
+                "label_end":   label_end.value,
+                "value_start": value_start.value,
+                "value_end":   value_end.value
+               }
+        return res
+
     def save(self):
         """Write all pending changes to disk. Only files that had any changes
         made to them are written.
