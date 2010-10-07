@@ -144,6 +144,28 @@ class Augeas(object):
         if ret != 0:
             raise ValueError("Unable to set value to path!")
 
+    def setm(self, base, sub, value):
+        """Set the value of multiple nodes in one operation. Find or create a
+        node matching SUB by interpreting SUB as a path expression relative to
+        each node matching BASE. SUB may be NULL, in which case all the nodes 
+        matching BASE will be modified. Returns number of modified nodes on
+        success, ValueError is raised on error."""
+        # Sanity checks
+        if not isinstance(base, basestring):
+            raise TypeError("base MUST be a string!")
+        if not isinstance(sub, basestring) and sub != None:
+            raise TypeError("sub MUST be a string or None!")
+        if not isinstance(value, basestring):
+            raise TypeError("value MUST be a string!")
+        if not self.__handle:
+            raise RuntimeError("The Augeas object has already been closed!")
+
+        ret = Augeas._libaugeas.aug_setm(self.__handle, base, sub, value)
+        if ret < 0:
+            raise ValueError("Unable to set value to path!")
+        
+        return ret
+        
     def move(self, src, dst):
         """Move the node 'src' to 'dst'. 'src' must match exactly one node
            in the tree. 'dst' must either match exactly one node in the
