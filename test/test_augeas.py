@@ -2,11 +2,8 @@ import unittest
 import sys
 import os
 
-__mydir = os.path.dirname(sys.argv[0])
-if not os.path.isdir(__mydir):
-    __mydir = os.getcwd()
-
-sys.path.append(__mydir + "/..")
+__mydir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, __mydir + "/..")
 
 import augeas
 
