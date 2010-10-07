@@ -50,7 +50,7 @@ class TestAugeas(unittest.TestCase):
         path = "/"
         matches = recurmatch(a, path)
         for (p, attr) in matches:
-            print >> sys.stderr, p, attr
+            #print >> sys.stderr, p, attr
             self.failUnless(p != None and attr != None)
 
     def test04Grub(self):
